@@ -1,5 +1,5 @@
 <?php
-// ./vendor/bin/phpunit --colors mainTest.php
+// ./vendor/bin/phpunit --colors MainTest.php
 
 include "Main.php";
 
