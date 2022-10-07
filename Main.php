@@ -16,13 +16,26 @@ class Main{
 		return $Account;
 	}
 
-	public function addTransaction($Account, $Merchant, $Amount, $Time){
+	public function authorize($Account, $Merchant, $Amount, $Time){
+
+		$violations = array();
 
 		echo "Trying do a transaction of " . $Amount . "\n";
-		
-		if($Account->getActive() == 1){
 
-			if($Account->getAvailableLimit() >= $Amount){
+		if(!$this->isActive($Account)){
+
+			echo "Account not Active";
+			$violations[] = "account-not-active";
+		}
+
+		if(!$this->ruleCheckLimit($Account, $Amount)){
+				
+			echo "No Limit, have only " . $Account->getAvailableLimit() . "\n";
+			$violations[] = "insufficient-limit";
+		}
+
+		if(count($violations) == 0){
+			
 				// create new Transaction
 				$Transaction = new Transaction();
 
@@ -38,14 +51,10 @@ class Main{
 				$Account->setAvailableLimit($Account->getAvailableLimit() - $Amount);
 
 				echo "Transaction done. \n";
-
-			}else{
-				echo "No Limit, have only " . $Account->getAvailableLimit() . "\n";
-			}
-
-		}else{
-			echo "Account not Active";
 		}
+
+
+		return array("account" => $Account, "violations" => $violations);
 
 	}
 
@@ -69,4 +78,20 @@ class Main{
 			}
 		}
 	}
+
+	public function isActive($Account){
+
+		return $Account->getActive();
+
+	}
+
+	/* 
+
+	*/
+	public function ruleCheckLimit($Account, $Amount){
+
+		return ($Account->getAvailableLimit() >= $Amount);
+
+	}
+
 }
